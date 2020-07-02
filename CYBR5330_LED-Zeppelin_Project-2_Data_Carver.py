@@ -34,17 +34,19 @@ def pngcarve():
 
   i = 0
   for SOF in SOFList:
-    subdata = data[SOF:EOFList[i] + 2]
+    subdata = data[SOF:EOFList[i] + 8]
     if int(EOFList[i]) > int(SOF):
-      carve_filename = "Carve1_" + str(SOF) + "_" + str(EOFList[i]) + ".png"
+      carve_filename = "Carve1_" + str(SOF) + "_" + str(EOFList[i] + 7) + ".png"
       carve_obj = open(carve_filename, 'wb')
       carve_obj.write(subdata)
       carve_obj.close()
       i = i + 1
       print("Found an image and carving it to " + carve_filename)
     else:
-      EOFList[i] = EOFList[i + 1]
-      carve_filename = "Carve1_" + str(SOF) + "_" + str(EOFList[i]) + ".png"
+      while int(EOFList[i]) < int(SOF):
+        EOFList[i] = EOFList[i + 1]
+        i = i + 1
+      carve_filename = "Carve1_" + str(SOF) + "_" + str(EOFList[i] + 7) + ".png"
       carve_obj = open(carve_filename, 'wb')
       carve_obj.write(subdata)
       carve_obj.close()
@@ -67,15 +69,17 @@ def jpgcarve():
   for SOF in SOFList:
     subdata = data[SOF:EOFList[i] + 2]
     if int(EOFList[i]) > int(SOF):
-      carve_filename = "Carve1_" + str(SOF) + "_" + str(EOFList[i]) + ".jpg"
+      carve_filename = "Carve1_" + str(SOF) + "_" + str(EOFList[i] + 1) + ".jpg"
       carve_obj = open(carve_filename, 'wb')
       carve_obj.write(subdata)
       carve_obj.close()
       i = i + 1
       print("Found an image and carving it to " + carve_filename)
     else:
-      EOFList[i] = EOFList[i + 1]
-      carve_filename = "Carve1_" + str(SOF) + "_" + str(EOFList[i]) + ".jpg"
+      while int(EOFList[i]) < int(SOF):
+        EOFList[i] = EOFList[i + 1]
+        i = i + 1
+      carve_filename = "Carve1_" + str(SOF) + "_" + str(EOFList[i] + 1) + ".jpg"
       carve_obj = open(carve_filename, 'wb')
       carve_obj.write(subdata)
       carve_obj.close()
@@ -95,17 +99,19 @@ def pdfcarve():
 
   i = 0
   for SOF in SOFList:
-    subdata = data[SOF:EOFList[i] + 2]
+    subdata = data[SOF:EOFList[i] + 6]
     if int(EOFList[i]) > int(SOF):
-      carve_filename = "Carve1_" + str(SOF) + "_" + str(EOFList[i]) + ".pdf"
+      carve_filename = "Carve1_" + str(SOF) + "_" + str(EOFList[i] + 5) + ".pdf"
       carve_obj = open(carve_filename, 'wb')
       carve_obj.write(subdata)
       carve_obj.close()
       i = i + 1
       print("Found a file and carving it to " + carve_filename)
     else:
-      EOFList[i] = EOFList[i + 1]
-      carve_filename = "Carve1_" + str(SOF) + "_" + str(EOFList[i]) + ".pdf"
+      while int(EOFList[i]) < int(SOF):
+        EOFList[i] = EOFList[i + 1]
+        i = i + 1
+      carve_filename = "Carve1_" + str(SOF) + "_" + str(EOFList[i] + 5) + ".pdf"
       carve_obj = open(carve_filename, 'wb')
       carve_obj.write(subdata)
       carve_obj.close()
@@ -127,15 +133,17 @@ def gifcarve():
   for SOF in SOFList:
     subdata = data[SOF:EOFList[i] + 2]
     if int(EOFList[i]) > int(SOF):
-      carve_filename = "Carve1_" + str(SOF) + "_" + str(EOFList[i]) + ".gif"
+      carve_filename = "Carve1_" + str(SOF) + "_" + str(EOFList[i] + 1) + ".gif"
       carve_obj = open(carve_filename, 'wb')
       carve_obj.write(subdata)
       carve_obj.close()
       i = i + 1
       print("Found an image and carving it to " + carve_filename)
     else:
-      EOFList[i] = EOFList[i + 1]
-      carve_filename = "Carve1_" + str(SOF) + "_" + str(EOFList[i]) + ".gif"
+      while int(EOFList[i]) < int(SOF):
+        EOFList[i] = EOFList[i + 1]
+        i = i + 1
+      carve_filename = "Carve1_" + str(SOF) + "_" + str(EOFList[i] + 1) + ".gif"
       carve_obj = open(carve_filename, 'wb')
       carve_obj.write(subdata)
       carve_obj.close()
