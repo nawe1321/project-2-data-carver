@@ -2,25 +2,46 @@ import os
 import earthpy as et
 import re
 from PIL import Image
+import argparse
+import datetime
+
+# Variables
+timestamp = str(datetime.datetime.now().strftime("%Y%m%dT%H%M%S"))
+current_dir = str(os.getcwd())
+project_dir = str("LED-Zeppelin_Project-2_" + timestamp)
+
+
+# Parser to accept command-line arguments
+parser = argparse.ArgumentParser(description='Carving Evidence from a Binary File')
+
+
+# Create list of agruments
+parser.add_argument(    dest='filename',
+                        type = argparse.FileType('rb'),
+                        help ='The binary filename to be carved located in the current working directory.')
+
+
+# Parse Arguments
+args = parser.parse_args()
+
+
+# Open/Read/Close Binary File as Read-Only
+with open(args.filename.name, 'rb') as file_obj:
+    data = file_obj.read()
+
 
 # OS agnostic creation of a folder for project 2, along with subdirectories for each file type
-if not os.path.exists(os.path.join(et.io.HOME, "LED Zeppelin", "Project 2")):
-    path = os.path.join(et.io.HOME, "LED Zeppelin", "Project 2")
+if not os.path.exists(os.path.join(current_dir, project_dir)):
+    path = os.path.join(current_dir, project_dir)
     os.makedirs(path)
     for subfolder in ['png', 'jpg', 'pdf', 'gif', 'docx']:
         os.makedirs(os.path.join(path, subfolder))
-    print("/LED Zeppelin/Project 2 and subfolders have been created")
+    print(project_dir + " and subfolders have been created!")
 else:
-    path = os.path.join(et.io.HOME, "LED Zeppelin", "Project 2")
+    path = os.path.join(current_dir, project_dir)
     print(path + ' already exists')
-os.chdir(path)
-print("Please enter your binary file into the new directory: " + path)
-
-# Accept binary file
-fname = input("Enter a file name: ")
-file_obj = open(fname, 'rb')
-data = file_obj.read()
-file_obj.close()
+    os.chdir(path)
+    print("Please enter your binary file into the new directory: " + path)
 
 
 def pngcarve():
@@ -253,7 +274,6 @@ def docxcarve():
 
 
 # Output basic file info
-
 
 #jpgcarve()
 #only returns some jpegs, but will return all if the while EOFList[i] == EOFList[-1] is first, but then all files are massive
