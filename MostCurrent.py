@@ -298,10 +298,11 @@ def fileBasics(fileType, fileName, startOfFile, endOfFile):
     bof = startOfFile
     eof = endOfFile
     size = int(eof - bof)
+    offSet = hex(bof)
     print("File Information")
     print("------------------------------------------------------------------")
     print("Found a file of type " + fType + " and carving it to " + fName)
-    print("The file has an offset of " + str(bof)+ " and a size of " + str(size))
+    print("The file has an offset of " + str(offSet)+ " and a size of " + str(size))
     print(" ")
 
 jpgcarve()
