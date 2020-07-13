@@ -3,25 +3,46 @@ import os
 import earthpy as et
 import re
 from PIL import Image
+import argparse
+import datetime
+
+# Variables
+timestamp = str(datetime.datetime.now().strftime("%Y%m%dT%H%M%S"))
+current_dir = str(os.getcwd())
+project_dir = str("LED-Zeppelin_Project-2_" + timestamp)
+
+
+# Parser to accept command-line arguments
+parser = argparse.ArgumentParser(description='Carving Evidence from a Binary File')
+
+
+# Create list of agruments
+parser.add_argument(    dest='filename',
+                        type = argparse.FileType('rb'),
+                        help ='The binary filename to be carved located in the current working directory.')
+
+
+# Parse Arguments
+args = parser.parse_args()
+
+
+# Open/Read/Close Binary File as Read-Only
+with open(args.filename.name, 'rb') as file_obj:
+    data = file_obj.read()
+
 
 # OS agnostic creation of a folder for project 2, along with subdirectories for each file type
-if not os.path.exists(os.path.join(et.io.HOME, "LED Zeppelin", "Project 2")):
-    path = os.path.join(et.io.HOME, "LED Zeppelin", "Project 2")
+if not os.path.exists(os.path.join(current_dir, project_dir)):
+    path = os.path.join(current_dir, project_dir)
     os.makedirs(path)
     for subfolder in ['png', 'jpg', 'pdf', 'gif', 'docx']:
         os.makedirs(os.path.join(path, subfolder))
-    print("/LED Zeppelin/Project 2 and subfolders have been created")
+    print(project_dir + " and subfolders have been created!")
 else:
-    path = os.path.join(et.io.HOME, "LED Zeppelin", "Project 2")
+    path = os.path.join(current_dir, project_dir)
     print(path + ' already exists')
-os.chdir(path)
-print("Please enter your binary file into the new directory: " + path)
-
-# Accept binary file
-fname = input("Enter a file name: ")
-file_obj = open(fname, 'rb')
-data = file_obj.read()
-file_obj.close()
+    os.chdir(path)
+    print("Please enter your binary file into the new directory: " + path)
 
 
 def pngcarve():
@@ -32,8 +53,8 @@ def pngcarve():
     SOFList = [match.start() for match in re.finditer(re.escape(SOF), data)]
     EOFList = [match.start() for match in re.finditer(re.escape(EOF), data)]
 
-    print(SOFList)
-    print(EOFList)
+    #print(SOFList)
+    #print(EOFList)
 
     i = 0
     b = 0
@@ -82,8 +103,8 @@ def jpgcarve():
     SOFList = [match.start() for match in re.finditer(re.escape(SOF), data)]
     EOFList = [match.start() for match in re.finditer(re.escape(EOF), data)]
 
-    print(SOFList)
-    print(EOFList)
+    #print(SOFList)
+    #print(EOFList)
 
     i = 0
     b = 0
@@ -132,8 +153,8 @@ def pdfcarve():
     SOFList = [match.start() for match in re.finditer(re.escape(SOF), data)]
     EOFList = [match.start() for match in re.finditer(re.escape(EOF), data)]
 
-    print(SOFList)
-    print(EOFList)
+    #print(SOFList)
+    #print(EOFList)
 
     i = 0
     b = 0
@@ -182,8 +203,8 @@ def gifcarve():
     SOFList = [match.start() for match in re.finditer(re.escape(SOF), data)]
     EOFList = [match.start() for match in re.finditer(re.escape(EOF), data)]
 
-    print(SOFList)
-    print(EOFList)
+    #print(SOFList)
+    #print(EOFList)
 
     i = 0
     b = 0
@@ -233,8 +254,8 @@ def docxcarve():
     SOFList = [match.start() for match in re.finditer(re.escape(SOF), data)]
     EOFList = [match.start() for match in re.finditer(re.escape(EOF), data)]
 
-    print(SOFList)
-    print(EOFList)
+    #print(SOFList)
+    #print(EOFList)
 
     i = 0
     b = 0
@@ -275,7 +296,8 @@ def docxcarve():
                 break
 
 
-# Write MD5 hash of carved file
+# MD5 hash of carved file coded by Bobbie
+#Used Python API for hashing large file types
 def fileHash(fileName, fileType):
     BLOCKSIZE = 65536
     file = fileName
@@ -291,19 +313,23 @@ def fileHash(fileName, fileType):
     file.write(fileName + " has a hash value of " + hashVal + "\n")
     file.close()
 
-# Output basic file info
+# Output basic file coded by Bobbie
 def fileBasics(fileType, fileName, startOfFile, endOfFile):
     fType = fileType
     fName = fileName
     bof = startOfFile
     eof = endOfFile
     size = int(eof - bof)
-    offSet = hex(bof)
+    offSet = hex(bof) #Converts the offset to Hex
+
+    #Writes the file data to the screen
     print("File Information")
     print("------------------------------------------------------------------")
     print("Found a file of type " + fType + " and carving it to " + fName)
     print("The file has an offset of " + str(offSet)+ " and a size of " + str(size))
     print(" ")
+
+    #Writes the file data to a file in case it needs to be looked at later on
     file = open('File Information.txt', 'a+')
     file.write(fileName + " Information \n")
     file.write("--------------------------------------------------------\n")
@@ -312,6 +338,7 @@ def fileBasics(fileType, fileName, startOfFile, endOfFile):
     file.write("The size of the file is: " + str(size) + "\n\n")
     file.close()
 
+#Run the program
 jpgcarve()
 os.chdir(path)
 pdfcarve()
