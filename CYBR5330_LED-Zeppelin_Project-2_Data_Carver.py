@@ -339,14 +339,11 @@ def fileBasics(fileType, fileName, startOfFile, endOfFile):
     file.close()
 
 #Run the program
-
-#jpgcarve()
-#only returns some jpegs, but will return all if the while EOFList[i] == EOFList[-1] is first, but then all files are massive
+jpgcarve()
 os.chdir(path)
 pdfcarve()
 os.chdir(path)
-#gifcarve()
-#still won't carve the gif and gives a 0 byte file return
+gifcarve()
 os.chdir(path)
 docxcarve()
 os.chdir(path)
