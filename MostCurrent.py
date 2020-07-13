@@ -304,6 +304,13 @@ def fileBasics(fileType, fileName, startOfFile, endOfFile):
     print("Found a file of type " + fType + " and carving it to " + fName)
     print("The file has an offset of " + str(offSet)+ " and a size of " + str(size))
     print(" ")
+    file = open('File Information.txt', 'a+')
+    file.write(fileName + " Information \n")
+    file.write("--------------------------------------------------------\n")
+    file.write("This file is type: " + fType +"\n")
+    file.write("The offset of this file is: " + str(offSet) +"\n")
+    file.write("The size of the file is: " + str(size) + "\n\n")
+    file.close()
 
 jpgcarve()
 os.chdir(path)
