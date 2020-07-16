@@ -5,52 +5,126 @@ import re
 from PIL import Image
 import argparse
 import datetime
+import sys
 
+# ---
 # Variables
+#
 timestamp = str(datetime.datetime.now().strftime("%Y-%m-%d-Time-%H-%M.%S"))
 current_dir = str(os.getcwd())
 project_dir = str("LED-Zeppelin_Project-2_" + timestamp)
 
+# ---
+# Pre-Checks for Argparse - Coded by Preston
+#
+if len(sys.argv) < 2:
+    print("Invalid or missing filename.  Insert a binary filename to be carved.  Enter the -h flag for more information.")
+    sys.exit()
 
-# Parser to accept command-line arguments
+if len(sys.argv) > 4:
+    print("Too many arguments.  Enter the -h flag for more information.")
+    sys.exit()
+
+
+# ---
+# Parser to accept command-line arguments - Coded by Preston/Nathan
+#
 parser = argparse.ArgumentParser(description='Carving Evidence from a Binary File')
 grouptype=parser.add_mutually_exclusive_group(required=False)
 groupcarve=parser.add_mutually_exclusive_group(required=False)
 
-# Create list of arguments
+# ---
+# Create list of arguments - Coded by Preston/Nathan
+#
 parser.add_argument(    dest='filename',
                         type = argparse.FileType('rb'),
                         help ='The binary filename to be carved located in the current working directory.')
-grouptype.add_argument('-i', '--image', action='store_true', help='Search the binary file for images only')
-grouptype.add_argument('-d', '--docs', '--documents', action='store_true', help='Search the binary file for documents only')
-grouptype.add_argument('-a', '--all', action='store_true', help='Search the binary file for all file types')
-groupcarve.add_argument('-s', '--standard', action='store_true', default=False, help='Search the binary file for images only')
-groupcarve.add_argument('-b', '--brute force', action='store_true', default=True, help='Search the binary file for images only')
+grouptype.add_argument('-i', '--image', dest='image', action='store_true', help='Search the binary file for images only')
+grouptype.add_argument('-d', '--docs', '--documents', dest='docs', action='store_true', help='Search the binary file for documents only')
+grouptype.add_argument('-a', '--all', dest='all', action='store_true', help='Search the binary file for all file types')
+groupcarve.add_argument('-s', '--standard', dest='standard', action='store_true', default=False, help='Search the binary file for images only')
+groupcarve.add_argument('-b', '--brute force', dest='brute_force', action='store_true', default=True, help='Search the binary file for images only')
 
-# Parse Arguments
 args = parser.parse_args()
 
-
-# Open/Read/Close Binary File as Read-Only
+# ---
+# Open/Read/Close Binary File as Read-Only - Coded by Preston
+#
 with open(args.filename.name, 'rb') as file_obj:
     data = file_obj.read()
 
+# ---
+# Menu Function - Coded by Preston
+# 
+def menu():
+    
+    # Carves Image File Types (JPG, GIF, and PNG)
+    if args.image == True:
+        createdirectories("jpg gif png")
+        jpgcarve()
+        os.chdir(path)
+        gifcarve()
+        os.chdir(path)
+        pngcarve()
+    
+    # Carves Document File Types (PDF and DOCX)
+    elif args.docs == True:
+        createdirectories("pdf docx")
+        pdfcarve()
+        os.chdir(path)
+        docxcarve()
+    
+    # Carves All File Types (JPG, PDF, GIF, DOCX, and PNG)
+    elif args.all == True:
+        createdirectories("jpg pdf gif docx png")
+        jpgcarve()
+        os.chdir(path)
+        pdfcarve()
+        os.chdir(path)
+        gifcarve()
+        os.chdir(path)
+        docxcarve()
+        os.chdir(path)
+        pngcarve()
+    
+    # Carves All File Types (JPG, PDF, GIF, DOCX, and PNG)
+    else:
+        createdirectories("jpg pdf gif docx png")
+        jpgcarve()
+        os.chdir(path)
+        pdfcarve()
+        os.chdir(path)
+        gifcarve()
+        os.chdir(path)
+        docxcarve()
+        os.chdir(path)
+        pngcarve()
 
+# ---
+# Directory Creation Function - Coded by Nathan/Preston
 # OS agnostic creation of a folder for project 2, along with subdirectories for each file type
-if not os.path.exists(os.path.join(current_dir, project_dir)):
-    path = os.path.join(current_dir, project_dir)
-    os.makedirs(path)
-    for subfolder in ['png', 'jpg', 'pdf', 'gif', 'docx']:
-        os.makedirs(os.path.join(path, subfolder))
-    print(project_dir + " and subfolders have been created!")
-else:
-    path = os.path.join(current_dir, project_dir)
-    print(path + ' already exists')
-    os.chdir(path)
-    print("Please enter your binary file into the new directory: " + path)
+#
+def createdirectories(carved_types):
+    global path
+    subfolders = carved_types.split()
 
+    if not os.path.exists(os.path.join(current_dir, project_dir)):
+        path = os.path.join(current_dir, project_dir)
+        os.makedirs(path)
+        for subfolder in subfolders:
+            os.makedirs(os.path.join(path, subfolder))
+        print(project_dir + " and subfolders have been created!")
+    else:
+        path = os.path.join(current_dir, project_dir)
+        print(path + ' already exists')
+        os.chdir(path)
+        print("Please enter your binary file into the new directory: " + path)
 
+# ---
+# PNG Carving Function - Coded by Nathan
+#
 def pngcarve():
+    global path
     SOF = b"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a"
     EOF = b"\x49\x45\x4e\x44\xae\x42\x60\x82"
     cwd = os.chdir(os.path.join(path, 'png'))
@@ -99,8 +173,11 @@ def pngcarve():
             elif len(EOFList) == 1:
                 break
 
-
+# ---
+# JPG Carving Function - Coded by Nathan
+#
 def jpgcarve():
+    global path
     SOF = b"\xFF\xD8\xFF"
     EOF = b"\xFF\xD9"
     cwd = os.chdir(os.path.join(path, 'jpg'))
@@ -149,8 +226,10 @@ def jpgcarve():
             elif len(EOFList) == 1:
                 break
 
-
+# ---
+# PDF Carving Function - Coded by Nathan
 def pdfcarve():
+    global path
     SOF = b"\x25\x50\x44\x46"
     EOF = b"\x0A\x25\x25\x45\x4F\x46"
     cwd = os.chdir(os.path.join(path, 'pdf'))
@@ -199,8 +278,11 @@ def pdfcarve():
             elif len(EOFList) == 1:
                 break
 
-
+# ---
+# GIF Carving Function - Coded by Nathan
+#
 def gifcarve():
+    global path
     SOF = b"\x47\x49\x46\x38"
     EOF = b"\x00\x3B"
     cwd = os.chdir(os.path.join(path, 'gif'))
@@ -250,8 +332,11 @@ def gifcarve():
                 break
 
 
-
+# ---
+# DOCX Carving Function - Coded by Nathan
+#
 def docxcarve():
+    global path
     SOF = b"\x50\x4B\x03\x04\x14\x00\x06\x00"
     EOF = b"\x50\x4B\x05\x06"
     cwd = os.chdir(os.path.join(path, 'docx'))
@@ -300,9 +385,10 @@ def docxcarve():
             elif len(EOFList) == 1:
                 break
 
-
-# MD5 hash of carved file coded by Bobbie
-#Used Python API for hashing large file types
+# ---
+# MD5 hash of carved file - Coded by Bobbie
+# Used Python API for hashing large file types
+# 
 def fileHash(fileName, fileType):
     BLOCKSIZE = 65536
     file = fileName
@@ -318,7 +404,9 @@ def fileHash(fileName, fileType):
     file.write(fileName + " has a hash value of " + hashVal + "\n")
     file.close()
 
-# Output basic file coded by Bobbie
+# ---
+# Output basic file - Coded by Bobbie
+#
 def fileBasics(fileType, fileName, startOfFile, endOfFile):
     fType = fileType
     fName = fileName
@@ -343,14 +431,63 @@ def fileBasics(fileType, fileName, startOfFile, endOfFile):
     file.write("The size of the file is: " + str(size) + "\n\n")
     file.close()
 
-#Run the program
-jpgcarve()
-os.chdir(path)
-pdfcarve()
-os.chdir(path)
-gifcarve()
-os.chdir(path)
-docxcarve()
-os.chdir(path)
-pngcarve()
+# ---
+# Print Summary - Coded by Preston
+# 
+def summary():
 
+    # Variables
+    jpgs = pdfs = gifs = docxs = pngs = images = documents = total = 0
+
+    # Count Number of Carved Files by Catetory Type
+    for category_dir in os.listdir(path):
+        for file_name in os.listdir(os.path.join(path, category_dir)):
+            if file_name.endswith(".jpg"):
+                jpgs += 1
+            elif file_name.endswith(".pdf"):
+                pdfs += 1
+            elif file_name.endswith(".gif"):
+                gifs += 1
+            elif file_name.endswith(".docx"):
+                docxs += 1
+            elif file_name.endswith(".png"):
+                pngs += 1
+
+    # Print Summary
+    print("==================================================================")
+    print("Data Carving Results")
+    print("==================================================================\n")
+
+    # Total Images
+    if jpgs > 0 or gifs > 0 or pngs > 0:
+        images = int(jpgs) + int(gifs) + int(pngs)
+
+        print("---------------------------------")
+        print("JPG's: ", str(jpgs))
+        print("GIF's: ", str(gifs))
+        print("PNG's: ", str(pngs))
+        print("---------------------------------")
+        print("Total Images: ", str(images) + "\n")
+
+    # Total Documents
+    if pdfs > 0 or docxs > 0:
+        documents = int(pdfs) + int(docxs)
+
+        print("---------------------------------")
+        print("PDF's: ", str(pdfs))
+        print("DOCX's: ", str(docxs))
+        print("---------------------------------")
+        print("Total Documents: ", str(documents) + "\n")
+
+    # Total Files Carved
+    total = int(images) + int(documents)
+
+    print("==================================================================")
+    print("Total Files Carved: ", str(total))
+    print("==================================================================")
+
+# ---
+# Run the program
+#
+menu()
+summary()
