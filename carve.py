@@ -108,11 +108,9 @@ def createdirectories(carved_types):
     global path
     subfolders = carved_types.split()
 
-    print("Printing:  ", subfolders)
     if not os.path.exists(os.path.join(current_dir, project_dir)):
         path = os.path.join(current_dir, project_dir)
         os.makedirs(path)
-        # for subfolder in [subfolders]:
         for subfolder in subfolders:
             os.makedirs(os.path.join(path, subfolder))
         print(project_dir + " and subfolders have been created!")
@@ -434,13 +432,62 @@ def fileBasics(fileType, fileName, startOfFile, endOfFile):
     file.close()
 
 # ---
-# Print Summary
+# Print Summary - Coded by Preston
 # 
-# def summary():
-    # TODO
+def summary():
+
+    # Variables
+    jpgs = pdfs = gifs = docxs = pngs = images = documents = total = 0
+
+    # Count Number of Carved Files by Catetory Type
+    for category_dir in os.listdir(path):
+        for file_name in os.listdir(os.path.join(path, category_dir)):
+            if file_name.endswith(".jpg"):
+                jpgs += 1
+            elif file_name.endswith(".pdf"):
+                pdfs += 1
+            elif file_name.endswith(".gif"):
+                gifs += 1
+            elif file_name.endswith(".docx"):
+                docxs += 1
+            elif file_name.endswith(".png"):
+                pngs += 1
+
+    # Print Summary
+    print("==================================================================")
+    print("Data Carving Results")
+    print("==================================================================\n")
+
+    # Total Images
+    if jpgs > 0 or gifs > 0 or pngs > 0:
+        images = int(jpgs) + int(gifs) + int(pngs)
+
+        print("---------------------------------")
+        print("JPG's: ", str(jpgs))
+        print("GIF's: ", str(gifs))
+        print("PNG's: ", str(pngs))
+        print("---------------------------------")
+        print("Total Images: ", str(images) + "\n")
+
+    # Total Documents
+    if pdfs > 0 or docxs > 0:
+        documents = int(pdfs) + int(docxs)
+
+        print("---------------------------------")
+        print("PDF's: ", str(pdfs))
+        print("DOCX's: ", str(docxs))
+        print("---------------------------------")
+        print("Total Documents: ", str(documents) + "\n")
+
+    # Total Files Carved
+    total = int(images) + int(documents)
+
+    print("==================================================================")
+    print("Total Files Carved: ", str(total))
+    print("==================================================================")
 
 # ---
 # Run the program
 #
 menu()
-# summary()
+summary()
