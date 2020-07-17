@@ -492,15 +492,18 @@ def fileBasics(fileType, fileName, startOfFile, endOfFile):
     print("------------------------------------------------------------------")
     print("Found a file of type " + fType + " and carving it to " + fName)
     print("The file has an offset of " + str(offSet) + " and a size of " + str(size))
+    print("------------------------------------------------------------------\n")
     print(" ")
 
     # Writes the file data to a file in case it needs to be looked at later on
     file = open('File Information.txt', 'a+')
+    file.write("========================================================\n")
     file.write(fileName + " Information \n")
     file.write("--------------------------------------------------------\n")
     file.write("This file is type: " + fType + "\n")
     file.write("The offset of this file is: " + str(offSet) + "\n")
-    file.write("The size of the file is: " + str(size) + "\n\n")
+    file.write("The size of the file is: " + str(size) + "\n")
+    file.write("========================================================\n\n")
     file.close()
 
 
