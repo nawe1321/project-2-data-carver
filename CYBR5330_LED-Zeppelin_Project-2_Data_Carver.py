@@ -492,7 +492,7 @@ def fileBasics(fileType, fileName, startOfFile, endOfFile):
     print("------------------------------------------------------------------")
     print("Found a file of type " + fType + " and carving it to " + fName)
     print("The file has an offset of " + str(offSet) + " and a size of " + str(size))
-    print("------------------------------------------------------------------\n")
+    print("------------------------------------------------------------------")
     print(" ")
 
     # Writes the file data to a file in case it needs to be looked at later on
