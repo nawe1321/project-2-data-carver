@@ -147,8 +147,9 @@ def pngcarve():
     SOFList = [match.start() for match in re.finditer(re.escape(SOF), data)]
     EOFList = [match.start() for match in re.finditer(re.escape(EOF), data)]
     
+    #Error check for list, if nothing in list exits to the next function - Coded by Bobbie
     if len(SOFList) == 0 or len(EOFList) == 0:
-        exit()
+        return
 
     # print(SOFList)
     # print(EOFList)
@@ -204,8 +205,9 @@ def jpgcarve():
     SOFList = [match.start() for match in re.finditer(re.escape(SOF), data)]
     EOFList = [match.start() for match in re.finditer(re.escape(EOF), data)]
     
+    #Error check for list, if nothing in list exits to the next function - Coded by Bobbie
     if len(SOFList) == 0 or len(EOFList) == 0:
-        exit()
+        return
 
     # print(SOFList)
     # print(EOFList)
@@ -260,6 +262,7 @@ def pdfcarve():
     SOFList = [match.start() for match in re.finditer(re.escape(SOF), data)]
     EOFList = [match.start() for match in re.finditer(re.escape(EOF), data)]
     
+    #Error check for list, if nothing in list exits to the next function - Coded by Bobbie
     if len(SOFList) == 0 or len(EOFList) == 0:
         exit()
 
@@ -317,8 +320,9 @@ def gifcarve():
     SOFList = [match.start() for match in re.finditer(re.escape(SOF), data)]
     EOFList = [match.start() for match in re.finditer(re.escape(EOF), data)]
     
+    #Error check for list, if nothing in list exits to the next function - Coded by Bobbie
     if len(SOFList) == 0 or len(EOFList) == 0:
-        exit()
+        return
 
     # print(SOFList)
     # print(EOFList)
@@ -374,8 +378,9 @@ def docxcarve():
     SOFList = [match.start() for match in re.finditer(re.escape(SOF), data)]
     EOFList = [match.start() for match in re.finditer(re.escape(EOF), data)]
     
+    #Error check for list, if nothing in list exits to the next function - Coded by Bobbie
     if len(SOFList) == 0 or len(EOFList) == 0:
-        exit()
+        return
 
     # print(SOFList)
     # print(EOFList)
