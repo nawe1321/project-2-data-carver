@@ -1,10 +1,8 @@
-import hashlib
-import os
-import earthpy as et
-import re
-from PIL import Image
 import argparse
 import datetime
+import hashlib
+import os
+import re
 import sys
 
 # ---
@@ -18,33 +16,40 @@ project_dir = str("LED-Zeppelin_Project-2_" + timestamp)
 # Pre-Checks for Argparse - Coded by Preston
 #
 if len(sys.argv) < 2:
-    print("Invalid or missing filename.  Insert a binary filename to be carved.  Enter the -h flag for more information.")
+    print(
+        "Invalid or missing filename.  Insert a binary filename to be carved.  Enter the -h flag for more information.")
     sys.exit()
 
 if len(sys.argv) > 4:
     print("Too many arguments.  Enter the -h flag for more information.")
     sys.exit()
 
-
 # ---
 # Parser to accept command-line arguments - Coded by Preston/Nathan
 #
 parser = argparse.ArgumentParser(description='Carving Evidence from a Binary File')
-grouptype=parser.add_mutually_exclusive_group(required=False)
-groupcarve=parser.add_mutually_exclusive_group(required=False)
+grouptype = parser.add_mutually_exclusive_group(required=True)
+####### group carve coming soon: standard will create less false postives, but will also be less successful finding embedded files.
+####### brute force is the default and what is currently being implemented.  It will find more files, but will take up more disk space as well.
+#groupcarve = parser.add_mutually_exclusive_group(required=False)
 
 # ---
 # Create list of arguments - Coded by Preston/Nathan
 #
-parser.add_argument(    dest='filename',
-                        type = argparse.FileType('rb'),
-                        help ='The binary filename to be carved located in the current working directory.')
-grouptype.add_argument('-i', '--image', dest='image', action='store_true', help='Search the binary file for images only')
-grouptype.add_argument('-d', '--docs', '--documents', dest='docs', action='store_true', help='Search the binary file for documents only')
+parser.add_argument(dest='filename',
+                    type=argparse.FileType('rb'),
+                    help='The binary filename to be carved located in the current working directory.')
+grouptype.add_argument('-m', '--media', dest='media', action='store_true',
+                       help='Search the binary file for media only')
+grouptype.add_argument('-d', '--docs', '--documents', dest='docs', action='store_true',
+                       help='Search the binary file for documents only')
 grouptype.add_argument('-a', '--all', dest='all', action='store_true', help='Search the binary file for all file types')
-groupcarve.add_argument('-s', '--standard', dest='standard', action='store_true', default=False, help='Search the binary file for images only')
-groupcarve.add_argument('-b', '--brute force', dest='brute_force', action='store_true', default=True, help='Search the binary file for images only')
-
+"""
+groupcarve.add_argument('-s', '--standard', dest='standard', action='store_true', default=False,
+                        help='Search the binary file for images only')
+groupcarve.add_argument('-b', '--brute force', dest='brute_force', action='store_true', default=True,
+                        help='Search the binary file for images only')
+"""
 args = parser.parse_args()
 
 # ---
@@ -53,30 +58,34 @@ args = parser.parse_args()
 with open(args.filename.name, 'rb') as file_obj:
     data = file_obj.read()
 
+
 # ---
 # Menu Function - Coded by Preston
 # 
 def menu():
-    
-    # Carves Image File Types (JPG, GIF, and PNG)
-    if args.image == True:
-        createdirectories("jpg gif png")
+    # Carves Media File Types (JPG, GIF, PNG, and MP4)
+    if args.media == True:
+        createdirectories("jpg gif png mp4")
         jpgcarve()
         os.chdir(path)
         gifcarve()
         os.chdir(path)
         pngcarve()
-    
+        os.chdir(path)
+        mp4carve()
+
     # Carves Document File Types (PDF and DOCX)
     elif args.docs == True:
         createdirectories("pdf docx")
         pdfcarve()
         os.chdir(path)
         docxcarve()
-    
-    # Carves All File Types (JPG, PDF, GIF, DOCX, and PNG)
+
+
+
+    # Carves All File Types (JPG, PDF, GIF, DOCX, PNG, and MP4)
     elif args.all == True:
-        createdirectories("jpg pdf gif docx png")
+        createdirectories("jpg pdf gif docx png mp4")
         jpgcarve()
         os.chdir(path)
         pdfcarve()
@@ -86,10 +95,12 @@ def menu():
         docxcarve()
         os.chdir(path)
         pngcarve()
-    
-    # Carves All File Types (JPG, PDF, GIF, DOCX, and PNG)
+        os.chdir(path)
+        mp4carve()
+
+    # Carves All File Types (JPG, PDF, GIF, DOCX, PNG, and MP4)
     else:
-        createdirectories("jpg pdf gif docx png")
+        createdirectories("jpg pdf gif docx png mp4")
         jpgcarve()
         os.chdir(path)
         pdfcarve()
@@ -99,6 +110,9 @@ def menu():
         docxcarve()
         os.chdir(path)
         pngcarve()
+        os.chdir(path)
+        mp4carve()
+
 
 # ---
 # Directory Creation Function - Coded by Nathan/Preston
@@ -120,6 +134,7 @@ def createdirectories(carved_types):
         os.chdir(path)
         print("Please enter your binary file into the new directory: " + path)
 
+
 # ---
 # PNG Carving Function - Coded by Nathan
 #
@@ -132,8 +147,8 @@ def pngcarve():
     SOFList = [match.start() for match in re.finditer(re.escape(SOF), data)]
     EOFList = [match.start() for match in re.finditer(re.escape(EOF), data)]
 
-    #print(SOFList)
-    #print(EOFList)
+    # print(SOFList)
+    # print(EOFList)
 
     i = 0
     b = 0
@@ -146,25 +161,25 @@ def pngcarve():
         while EOFList[i] < EOFList[- 1]:
             subdata = data[SOFList[b]:EOFList[i] + 8]
             if SOFList[b] < EOFList[i]:
-                carve_filename = "LEDZ" + str(SOFList[b]) + "_" + str(EOFList[i] + 8) + ".png"
+                carve_filename = "LEDZ: " + str(SOFList[b]) + "-" + str(EOFList[i] + 8) + ".png"
                 with open(carve_filename, 'wb') as carve_obj:
                     carve_obj.write(subdata)
                     carve_obj.close()
                     fileHash(carve_filename, "PNG")
-                    fileBasics("PNG", carve_filename, SOFList[b], EOFList[i]+8)
-                    #print("Found an image and carving it to " + carve_filename)
+                    fileBasics("PNG", carve_filename, SOFList[b], EOFList[i] + 8)
+                    # print("Found an image and carving it to " + carve_filename)
                     i += 1
 
         else:
             subdata = data[SOFList[b]:EOFList[i] + 8]
             if EOFList[i] == EOFList[-1]:
-                carve_filename = "LEDZ" + str(SOFList[b]) + "_" + str(EOFList[i] + 2) + ".png"
+                carve_filename = "LEDZ: " + str(SOFList[b]) + "-" + str(EOFList[i] + 8) + ".png"
                 with open(carve_filename, 'wb') as carve_obj:
                     carve_obj.write(subdata)
                     carve_obj.close()
                     fileHash(carve_filename, "PNG")
-                    fileBasics("PNG", carve_filename, SOFList[b], EOFList[i]+8)
-                    #print("Found an image and carving it to " + carve_filename)
+                    fileBasics("PNG", carve_filename, SOFList[b], EOFList[i] + 8)
+                    # print("Found an image and carving it to " + carve_filename)
                     if SOFList[b] == SOFList[-1]:
                         break
                     else:
@@ -172,6 +187,7 @@ def pngcarve():
                         b += 1
             elif len(EOFList) == 1:
                 break
+
 
 # ---
 # JPG Carving Function - Coded by Nathan
@@ -185,8 +201,8 @@ def jpgcarve():
     SOFList = [match.start() for match in re.finditer(re.escape(SOF), data)]
     EOFList = [match.start() for match in re.finditer(re.escape(EOF), data)]
 
-    #print(SOFList)
-    #print(EOFList)
+    # print(SOFList)
+    # print(EOFList)
 
     i = 0
     b = 0
@@ -199,25 +215,25 @@ def jpgcarve():
         while EOFList[i] < EOFList[- 1]:
             subdata = data[SOFList[b]:EOFList[i] + 2]
             if SOFList[b] < EOFList[i]:
-                carve_filename = "LEDZ" + str(SOFList[b]) + "_" + str(EOFList[i] + 2) + ".jpg"
+                carve_filename = "LEDZ: " + str(SOFList[b]) + "-" + str(EOFList[i] + 2) + ".jpg"
                 with open(carve_filename, 'wb') as carve_obj:
                     carve_obj.write(subdata)
                     carve_obj.close()
                     fileHash(carve_filename, "JPG")
-                    fileBasics("JPG", carve_filename, SOFList[b], EOFList[i]+2)
-                    #print("Found an image and carving it to " + carve_filename)
+                    fileBasics("JPG", carve_filename, SOFList[b], EOFList[i] + 2)
+                    # print("Found an image and carving it to " + carve_filename)
                     i += 1
 
         else:
             subdata = data[SOFList[b]:EOFList[i] + 2]
             if EOFList[i] == EOFList[-1]:
-                carve_filename = "LEDZ" + str(SOFList[b]) + "_" + str(EOFList[i] + 2) + ".jpg"
+                carve_filename = "LEDZ: " + str(SOFList[b]) + "-" + str(EOFList[i] + 2) + ".jpg"
                 with open(carve_filename, 'wb') as carve_obj:
                     carve_obj.write(subdata)
                     carve_obj.close()
                     fileHash(carve_filename, "JPG")
-                    fileBasics("JPG", carve_filename, SOFList[b], EOFList[i]+2)
-                    #print("Found an image and carving it to " + carve_filename)
+                    fileBasics("JPG", carve_filename, SOFList[b], EOFList[i] + 2)
+                    # print("Found an image and carving it to " + carve_filename)
                     if SOFList[b] == SOFList[-1]:
                         break
                     else:
@@ -225,6 +241,7 @@ def jpgcarve():
                         b += 1
             elif len(EOFList) == 1:
                 break
+
 
 # ---
 # PDF Carving Function - Coded by Nathan
@@ -237,8 +254,8 @@ def pdfcarve():
     SOFList = [match.start() for match in re.finditer(re.escape(SOF), data)]
     EOFList = [match.start() for match in re.finditer(re.escape(EOF), data)]
 
-    #print(SOFList)
-    #print(EOFList)
+    # print(SOFList)
+    # print(EOFList)
 
     i = 0
     b = 0
@@ -251,25 +268,25 @@ def pdfcarve():
         while EOFList[i] < EOFList[- 1]:
             subdata = data[SOFList[b]:EOFList[i] + 6]
             if SOFList[b] < EOFList[i]:
-                carve_filename = "LEDZ" + str(SOFList[b]) + "_" + str(EOFList[i] + 6) + ".pdf"
+                carve_filename = "LEDZ: " + str(SOFList[b]) + "-" + str(EOFList[i] + 6) + ".pdf"
                 with open(carve_filename, 'wb') as carve_obj:
                     carve_obj.write(subdata)
                     carve_obj.close()
                     fileHash(carve_filename, "PDF")
-                    fileBasics("PDF", carve_filename, SOFList[b], EOFList[i]+6)
-                    #print("Found an image and carving it to " + carve_filename)
+                    fileBasics("PDF", carve_filename, SOFList[b], EOFList[i] + 6)
+                    # print("Found a document and carving it to " + carve_filename)
                     i += 1
 
         else:
             subdata = data[SOFList[b]:EOFList[i] + 6]
             if EOFList[i] == EOFList[-1]:
-                carve_filename = "LEDZ" + str(SOFList[b]) + "_" + str(EOFList[i] + 6) + ".pdf"
+                carve_filename = "LEDZ: " + str(SOFList[b]) + "-" + str(EOFList[i] + 6) + ".pdf"
                 with open(carve_filename, 'wb') as carve_obj:
                     carve_obj.write(subdata)
                     carve_obj.close()
                     fileHash(carve_filename, "PDF")
-                    fileBasics("PDF", carve_filename, SOFList[b], EOFList[i]+6)
-                    #print("Found an image and carving it to " + carve_filename)
+                    fileBasics("PDF", carve_filename, SOFList[b], EOFList[i] + 6)
+                    # print("Found a document and carving it to " + carve_filename)
                     if SOFList[b] == SOFList[-1]:
                         break
                     else:
@@ -277,6 +294,7 @@ def pdfcarve():
                         b += 1
             elif len(EOFList) == 1:
                 break
+
 
 # ---
 # GIF Carving Function - Coded by Nathan
@@ -290,8 +308,8 @@ def gifcarve():
     SOFList = [match.start() for match in re.finditer(re.escape(SOF), data)]
     EOFList = [match.start() for match in re.finditer(re.escape(EOF), data)]
 
-    #print(SOFList)
-    #print(EOFList)
+    # print(SOFList)
+    # print(EOFList)
 
     i = 0
     b = 0
@@ -304,25 +322,25 @@ def gifcarve():
         while EOFList[i] < EOFList[- 1]:
             subdata = data[SOFList[b]:EOFList[i] + 2]
             if SOFList[b] < EOFList[i]:
-                carve_filename = "LEDZ" + str(SOFList[b]) + "_" + str(EOFList[i] + 2) + ".gif"
+                carve_filename = "LEDZ: " + str(SOFList[b]) + "-" + str(EOFList[i] + 2) + ".gif"
                 with open(carve_filename, 'wb') as carve_obj:
                     carve_obj.write(subdata)
                     carve_obj.close()
                     fileHash(carve_filename, "GIF")
-                    fileBasics("GIF", carve_filename, SOFList[b], EOFList[i]+2)
-                    #print("Found an image and carving it to " + carve_filename)
+                    fileBasics("GIF", carve_filename, SOFList[b], EOFList[i] + 2)
+                    # print("Found an image and carving it to " + carve_filename)
                     i += 1
 
         else:
             subdata = data[SOFList[b]:EOFList[i] + 2]
             if EOFList[i] == EOFList[-1]:
-                carve_filename = "LEDZ" + str(SOFList[b]) + "_" + str(EOFList[i] + 2) + ".gif"
+                carve_filename = "LEDZ: " + str(SOFList[b]) + "-" + str(EOFList[i] + 2) + ".gif"
                 with open(carve_filename, 'wb') as carve_obj:
                     carve_obj.write(subdata)
                     carve_obj.close()
                     fileHash(carve_filename, "GIF")
-                    fileBasics("GIF", carve_filename, SOFList[b], EOFList[i]+2)
-                    #print("Found an image and carving it to " + carve_filename)
+                    fileBasics("GIF", carve_filename, SOFList[b], EOFList[i] + 2)
+                    # print("Found an image and carving it to " + carve_filename)
                     if SOFList[b] == SOFList[-1]:
                         break
                     else:
@@ -344,8 +362,8 @@ def docxcarve():
     SOFList = [match.start() for match in re.finditer(re.escape(SOF), data)]
     EOFList = [match.start() for match in re.finditer(re.escape(EOF), data)]
 
-    #print(SOFList)
-    #print(EOFList)
+    # print(SOFList)
+    # print(EOFList)
 
     i = 0
     b = 0
@@ -358,25 +376,25 @@ def docxcarve():
         while EOFList[i] < EOFList[- 1]:
             subdata = data[SOFList[b]:EOFList[i] + 22]
             if SOFList[b] < EOFList[i]:
-                carve_filename = "LEDZ" + str(SOFList[b]) + "_" + str(EOFList[i] + 22) + ".docx"
+                carve_filename = "LEDZ: " + str(SOFList[b]) + "-" + str(EOFList[i] + 22) + ".docx"
                 with open(carve_filename, 'wb') as carve_obj:
                     carve_obj.write(subdata)
                     carve_obj.close()
                     fileHash(carve_filename, "DOCX")
-                    fileBasics("DOCX", carve_filename, SOFList[b], EOFList[i]+22)
-                    #print("Found an image and carving it to " + carve_filename)
+                    fileBasics("DOCX", carve_filename, SOFList[b], EOFList[i] + 22)
+                    # print("Found a document and carving it to " + carve_filename)
                     i += 1
 
         else:
             subdata = data[SOFList[b]:EOFList[i] + 22]
             if EOFList[i] == EOFList[-1]:
-                carve_filename = "LEDZ" + str(SOFList[b]) + "_" + str(EOFList[i] + 22) + ".docx"
+                carve_filename = "LEDZ: " + str(SOFList[b]) + "-" + str(EOFList[i] + 22) + ".docx"
                 with open(carve_filename, 'wb') as carve_obj:
                     carve_obj.write(subdata)
                     carve_obj.close()
                     fileHash(carve_filename, "DOCX")
-                    fileBasics("DOCX", carve_filename, SOFList[b], EOFList[i]+22)
-                    #print("Found an image and carving it to " + carve_filename)
+                    fileBasics("DOCX", carve_filename, SOFList[b], EOFList[i] + 22)
+                    # print("Found a document and carving it to " + carve_filename)
                     if SOFList[b] == SOFList[-1]:
                         break
                     else:
@@ -384,6 +402,41 @@ def docxcarve():
                         b += 1
             elif len(EOFList) == 1:
                 break
+
+
+# ---
+# MP4 Carving Function - Coded by Nathan
+#
+def mp4carve():
+    global path
+    SOF = b"\x66\x74\x79\x70\x6D\x70\x34\x32"
+    EOFList = len(data)
+    cwd = os.chdir(os.path.join(path, 'mp4'))
+
+    SOFList = [match.start() for match in re.finditer(re.escape(SOF), data)]
+    #EOFList = [match.start() for match in re.finditer(re.escape(EOF), data)]
+
+    # print(SOFList)
+    # print(EOFList)
+
+    i = 0
+    b = 0
+    print(SOFList)
+    print(EOFList)
+
+
+    for SOF in SOFList:
+        subdata = data[SOFList[b] - 4:EOFList]
+        carve_filename = "LEDZ: " + str(SOFList[b] - 4) + "-" + str(EOFList) + ".mp4"
+        with open(carve_filename, 'wb') as carve_obj:
+            carve_obj.write(subdata)
+            carve_obj.close()
+            fileHash(carve_filename, "MP4")
+            fileBasics("MP4", carve_filename, SOFList[b] - 4, EOFList)
+            # print("Found a video and carving it to " + carve_filename)
+
+
+
 
 # ---
 # MD5 hash of carved file - Coded by Bobbie
@@ -404,6 +457,7 @@ def fileHash(fileName, fileType):
     file.write(fileName + " has a hash value of " + hashVal + "\n")
     file.close()
 
+
 # ---
 # Output basic file - Coded by Bobbie
 #
@@ -413,33 +467,33 @@ def fileBasics(fileType, fileName, startOfFile, endOfFile):
     bof = startOfFile
     eof = endOfFile
     size = int(eof - bof)
-    offSet = hex(bof) #Converts the offset to Hex
+    offSet = hex(bof)  # Converts the offset to Hex
 
-    #Writes the file data to the screen
+    # Writes the file data to the screen
     print("File Information")
     print("------------------------------------------------------------------")
     print("Found a file of type " + fType + " and carving it to " + fName)
-    print("The file has an offset of " + str(offSet)+ " and a size of " + str(size))
+    print("The file has an offset of " + str(offSet) + " and a size of " + str(size))
     print(" ")
 
-    #Writes the file data to a file in case it needs to be looked at later on
+    # Writes the file data to a file in case it needs to be looked at later on
     file = open('File Information.txt', 'a+')
     file.write(fileName + " Information \n")
     file.write("--------------------------------------------------------\n")
-    file.write("This file is type: " + fType +"\n")
-    file.write("The offset of this file is: " + str(offSet) +"\n")
+    file.write("This file is type: " + fType + "\n")
+    file.write("The offset of this file is: " + str(offSet) + "\n")
     file.write("The size of the file is: " + str(size) + "\n\n")
     file.close()
+
 
 # ---
 # Print Summary - Coded by Preston
 # 
 def summary():
-
     # Variables
-    jpgs = pdfs = gifs = docxs = pngs = images = documents = total = 0
+    jpgs = pdfs = gifs = docxs = pngs = mp4s = media = documents = total = 0
 
-    # Count Number of Carved Files by Catetory Type
+    # Count Number of Carved Files by Category Type
     for category_dir in os.listdir(path):
         for file_name in os.listdir(os.path.join(path, category_dir)):
             if file_name.endswith(".jpg"):
@@ -452,22 +506,29 @@ def summary():
                 docxs += 1
             elif file_name.endswith(".png"):
                 pngs += 1
+            elif file_name.endswith(".mp4"):
+                mp4s += 1
 
     # Print Summary
     print("==================================================================")
     print("Data Carving Results")
     print("==================================================================\n")
 
-    # Total Images
-    if jpgs > 0 or gifs > 0 or pngs > 0:
+    # Total Media
+    if jpgs > 0 or gifs > 0 or pngs > 0 or mp4s > 0:
         images = int(jpgs) + int(gifs) + int(pngs)
+        videos = int(mp4s)
+        media = images + videos
 
         print("---------------------------------")
         print("JPG's: ", str(jpgs))
         print("GIF's: ", str(gifs))
         print("PNG's: ", str(pngs))
+        print("MP4's: ", str(mp4s))
         print("---------------------------------")
         print("Total Images: ", str(images) + "\n")
+        print("Total Videos: ", str(videos) + "\n")
+        print("Total Media: ", str(media) + "\n")
 
     # Total Documents
     if pdfs > 0 or docxs > 0:
@@ -480,11 +541,12 @@ def summary():
         print("Total Documents: ", str(documents) + "\n")
 
     # Total Files Carved
-    total = int(images) + int(documents)
+    total = int(media) + int(documents)
 
     print("==================================================================")
     print("Total Files Carved: ", str(total))
     print("==================================================================")
+
 
 # ---
 # Run the program
