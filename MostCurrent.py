@@ -455,8 +455,6 @@ def mp4carve():
 
 # ---
 # MD5 hash of carved file - Coded by Bobbie
-# Used Python API for hashing large file types
-# 
 def fileHash(fileName, fileType):
     BLOCKSIZE = 65536
     file = fileName
