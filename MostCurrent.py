@@ -536,30 +536,30 @@ def summary():
         media = images + videos
 
         print("---------------------------------")
-        print("JPG's: ", str(jpgs))
-        print("GIF's: ", str(gifs))
-        print("PNG's: ", str(pngs))
-        print("MP4's: ", str(mp4s))
+        print('JPG\'s: '+ str(jpgs))
+        print('GIF\'s: '+ str(gifs))
+        print('PNG\'s: '+ str(pngs))
+        print('MP4\'s: '+ str(mp4s))
         print("---------------------------------")
-        print("Total Images: ", str(images) + "\n")
-        print("Total Videos: ", str(videos) + "\n")
-        print("Total Media: ", str(media) + "\n")
+        print('Total Images: '+ str(images) + '\n')
+        print('Total Videos: '+ str(videos) + '\n')
+        print('Total Media: '+ str(media) + '\n')
 
     # Total Documents
     if pdfs > 0 or docxs > 0:
         documents = int(pdfs) + int(docxs)
 
         print("---------------------------------")
-        print("PDF's: ", str(pdfs))
-        print("DOCX's: ", str(docxs))
+        print('PDF\'s: ' + str(pdfs))
+        print('DOCX\'s: ' + str(docxs))
         print("---------------------------------")
-        print("Total Documents: ", str(documents) + "\n")
+        print('Total Documents: '+ str(documents) + '\n')
 
     # Total Files Carved
     total = int(media) + int(documents)
 
     print("==================================================================")
-    print("Total Files Carved: ", str(total))
+    print('Total Files Carved: '+ str(total))
     print("==================================================================")
 
 
